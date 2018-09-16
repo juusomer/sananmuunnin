@@ -19,10 +19,10 @@ class OneHot:
     def n_characters(self):
         return len(self.characters)
 
-    def encode(self, characters):
-        n_padding = self.max_len - len(characters)
+    def encode(self, string):
+        n_padding = self.max_len - len(string)
         padding_indices = list(repeat(self._padding, n_padding))
-        char_indices = [self._char_to_index[char] for char in characters]
+        char_indices = [self._char_to_index[char] for char in string.lower()]
         return np.eye(self.n_characters)[
             np.array(padding_indices + char_indices).reshape(-1)
         ]
