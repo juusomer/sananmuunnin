@@ -84,6 +84,7 @@ def fix_vowel_counts(part_1, part_3):
 
 
 def process(word_1, word_2):
+    # FIXME fix erroneous diphthongs
     """
     >>> process('musta', 'naamio')
     ('nasta', 'muumio')
@@ -93,6 +94,8 @@ def process(word_1, word_2):
     ('kasti', 'tettavuus')
     >>> process('sata', 'prosenttia')
     ('prota', 'sasenttia')
+    >>> process('vieno', 'huntti')
+    ('huono', 'vintti')
     """
     part_3, part_2 = split(word_1)
     part_1, part_4 = split(word_2)
