@@ -103,18 +103,3 @@ def process(word_1, word_2):
     word_2 = fix_vowel_harmony(part_3 + part_4)
 
     return word_1, word_2
-
-
-def main():
-    for line in iter(sys.stdin.readline, b""):
-        if not line:
-            break
-        try:
-            words = line.split()
-            print(" ".join(process(*words)))
-        except:
-            continue
-
-
-if __name__ == "__main__":
-    main()
