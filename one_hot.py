@@ -1,29 +1,29 @@
 from itertools import repeat
 import numpy as np
+import sananmuunnin as sm
+
+
+MAX_LEN = 20
+CHARACTERS = ["", " "] + list(sm.VOWELS + sm.CONSONANTS)
+N_CHARACTERS = len(CHARACTERS)
+PADDING = 0
 
 
 class OneHot:
 
-    def __init__(self, characters, max_len, padding=0):
-        self.max_len = max_len
-        self.characters = characters
-        self._padding = 0
+    def __init__(self):
         self._char_to_index = {
-            char: index for index, char in enumerate(characters)
+            char: index for index, char in enumerate(CHARACTERS)
         }
         self._index_to_char = {
             index: char for char, index in self._char_to_index.items()
         }
 
-    @property
-    def n_characters(self):
-        return len(self.characters)
-
     def encode(self, string):
-        n_padding = self.max_len - len(string)
-        padding_indices = list(repeat(self._padding, n_padding))
+        n_padding = MAX_LEN - len(string)
+        padding_indices = list(repeat(PADDING, n_padding))
         char_indices = [self._char_to_index[char] for char in string.lower()]
-        return np.eye(self.n_characters)[
+        return np.eye(N_CHARACTERS)[
             np.array(padding_indices + char_indices).reshape(-1)
         ]
 
