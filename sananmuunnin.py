@@ -25,8 +25,12 @@ CLOSING_DIPHTHONGS = [
     "öi",
     "öy",
 ]
+
 OPENING_DIPHTHONGS = ["ie", "uo", "yö"]
 DIPHTHONGS = OPENING_DIPHTHONGS + CLOSING_DIPHTHONGS
+
+CLOSING_DIPHTHONGS_MAP = {d[0]: d[1] for d in CLOSING_DIPHTHONGS}
+OPENING_DIPHTHONGS_MAP = {d[0]: d[1] for d in OPENING_DIPHTHONGS}
 
 
 def pairwise(iterable):
@@ -80,9 +84,9 @@ def get_defining_vowel(chars):
     return next(filter(lambda char: char in SWITCH_VOWELS, chars), "")
 
 
-def fix_vowel_harmony(word):
-    to_vowel = get_defining_vowel(word)
-    return "".join(switch_vowel(char, to_vowel) for char in word)
+def fix_vowel_harmony(part_1, part_2):
+    to_vowel = get_defining_vowel(part_1)
+    return part_1, "".join(switch_vowel(char, to_vowel) for char in part_2)
 
 
 def get_vowel_repeats(chars):
@@ -107,27 +111,30 @@ def fix_vowel_counts(part_1, part_3):
     )
 
 
-def fix_diphthongs_and_join(old_beginning, new_beginning, ending):
+def fix_diphthong(part_1, part_2, old_part_1):
     """
-    >>> fix_diphthongs_and_join('vi', 'hu', 'eno')
-    'huono'
+    >>> fix_diphthong('hu', 'eno', 'vi')
+    'ono'
     """
     try:
-        old_chars = old_beginning[-1] + ending[0]
-        new_chars = new_beginning[-1] + ending[0]
+        new_char = part_2[0]
+        new_chars = part_1[-1] + new_char
+        old_chars = old_part_1[-1] + new_char
     except IndexError:
-        return new_beginning + ending
+        return part_2
 
-    char = new_chars[0]
-
-    if new_chars in DIPHTHONGS or not all(map(is_vowel, new_chars)):
+    if (
+        new_chars in DIPHTHONGS
+        or new_chars[0] == new_chars[1]
+        or not all(map(is_vowel, new_chars))
+    ):
         pass
     elif old_chars in OPENING_DIPHTHONGS:
-        new_chars = char + {d[0]: d[1] for d in OPENING_DIPHTHONGS}[char]
+        new_char = OPENING_DIPHTHONGS_MAP.get(*new_chars)
     elif old_chars in CLOSING_DIPHTHONGS:
-        new_chars = char + {d[0]: d[1] for d in CLOSING_DIPHTHONGS}[char]
+        new_char = CLOSING_DIPHTHONGS_MAP.get(*new_chars)
 
-    return new_beginning[:-1] + new_chars + ending[1:]
+    return new_char + part_2[1:]
 
 
 def process(word_1, word_2):
@@ -150,10 +157,10 @@ def process(word_1, word_2):
 
     part_1, part_3 = fix_vowel_counts(part_1, part_3)
 
-    word_1 = fix_diphthongs_and_join(part_3, part_1, part_2)
-    word_2 = fix_diphthongs_and_join(part_1, part_3, part_4)
+    part_2 = fix_diphthong(part_1, part_2, part_3)
+    part_4 = fix_diphthong(part_3, part_4, part_1)
 
-    word_1 = fix_vowel_harmony(word_1)
-    word_2 = fix_vowel_harmony(word_2)
+    part_1, part_2 = fix_vowel_harmony(part_1, part_2)
+    part_3, part_4 = fix_vowel_harmony(part_3, part_4)
 
-    return word_1, word_2
+    return part_1 + part_2, part_3 + part_4
