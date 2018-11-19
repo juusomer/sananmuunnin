@@ -9,28 +9,13 @@ FRONT_VOWELS = "äöy"
 SWITCH_VOWELS = BACK_VOWELS + FRONT_VOWELS
 
 CLOSING_DIPHTHONGS = [
-    "ai",
-    "au",
-    "ei",
-    "eu",
-    "ey",
-    "iu",
-    "iy",
-    "oi",
-    "ou",
-    "ui",
-    "yi",
-    "äi",
-    "äy",
-    "öi",
-    "öy",
+    "ai", "au", "ei", "eu", "ey", "iu", "iy", "oi",
+    "ou", "ui", "yi", "äi", "äy", "öi", "öy",
 ]
-
 OPENING_DIPHTHONGS = ["ie", "uo", "yö"]
-DIPHTHONGS = OPENING_DIPHTHONGS + CLOSING_DIPHTHONGS
-
 CLOSING_DIPHTHONGS_MAP = {d[0]: d[1] for d in CLOSING_DIPHTHONGS}
 OPENING_DIPHTHONGS_MAP = {d[0]: d[1] for d in OPENING_DIPHTHONGS}
+DIPHTHONGS = OPENING_DIPHTHONGS + CLOSING_DIPHTHONGS
 
 
 def pairwise(iterable):
@@ -44,14 +29,6 @@ def is_vowel(char):
 
 
 def split(word):
-    """
-    >>> split('musta')
-    ('mu', 'sta')
-    >>> split('naamio')
-    ('naa', 'mio')
-    >>> split('proosa')
-    ('proo', 'sa')
-    """
     for i, (prev, next_) in enumerate(pairwise(word)):
         if is_vowel(prev) and prev != next_:
             return word[:i + 1], word[i + 1:]
@@ -86,7 +63,7 @@ def get_defining_vowel(chars):
 
 def fix_vowel_harmony(part_1, part_2):
     to_vowel = get_defining_vowel(part_1)
-    return part_1, "".join(switch_vowel(char, to_vowel) for char in part_2)
+    return "".join(switch_vowel(char, to_vowel) for char in part_2)
 
 
 def get_vowel_repeats(chars):
@@ -97,10 +74,6 @@ def get_vowel_repeats(chars):
 
 
 def fix_vowel_counts(part_1, part_3):
-    """
-    >>> fix_vowel_counts('naa', 'mu')
-    ('na', 'muu')
-    """
     count_1 = get_vowel_repeats(part_3)
     count_3 = get_vowel_repeats(part_1)
     vowel_1 = part_1[-1]
@@ -112,10 +85,6 @@ def fix_vowel_counts(part_1, part_3):
 
 
 def fix_diphthong(part_1, part_2, old_part_1):
-    """
-    >>> fix_diphthong('hu', 'eno', 'vi')
-    'ono'
-    """
     try:
         new_char = part_2[0]
         new_chars = part_1[-1] + new_char
@@ -137,20 +106,20 @@ def fix_diphthong(part_1, part_2, old_part_1):
     return new_char + part_2[1:]
 
 
-def process(word_1, word_2):
+def transform(word_1, word_2):
     """
-    >>> process('musta', 'naamio')
+    >>> transform('musta', 'naamio')
     ('nasta', 'muumio')
-    >>> process('vokaaleja', 'ylös')
+    >>> transform('vokaaleja', 'ylös')
     ('ykäälejä', 'volos')
-    >>> process('testi', 'kattavuus')
-    ('kasti', 'tettavuus')
-    >>> process('sata', 'prosenttia')
-    ('prota', 'sasenttia')
-    >>> process('öööök', 'ää')
+    >>> transform('öööök', 'ää')
     ('ääääk', 'öö')
-    >>> process('vieno', 'huntti')
+    >>> transform('vieno', 'huntti')
     ('huono', 'vintti')
+    >>> transform('testi', 'kattavuus')
+    ('kasti', 'tettavuus')
+    >>> transform('sata', 'prosenttia')
+    ('prota', 'sasenttia')
     """
     part_3, part_2 = split(word_1)
     part_1, part_4 = split(word_2)
@@ -160,7 +129,7 @@ def process(word_1, word_2):
     part_2 = fix_diphthong(part_1, part_2, part_3)
     part_4 = fix_diphthong(part_3, part_4, part_1)
 
-    part_1, part_2 = fix_vowel_harmony(part_1, part_2)
-    part_3, part_4 = fix_vowel_harmony(part_3, part_4)
+    part_2 = fix_vowel_harmony(part_1, part_2)
+    part_4 = fix_vowel_harmony(part_3, part_4)
 
     return part_1 + part_2, part_3 + part_4

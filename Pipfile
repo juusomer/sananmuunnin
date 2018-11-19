@@ -10,6 +10,7 @@ jupyter = "*"
 pydot = "*"
 numpy = "*"
 keras = "*"
+tqdm = "*"
 
 [dev-packages]
 

@@ -17,5 +17,6 @@ pipenv run python -m doctest sananmuunnin.py
 ## Run Jupyter Notebook
 
 ```
+pipenv run python -m ipykernel install --user --name sananmuunnos --display-name "Sananmuunnos"
 pipenv run jupyter notebook
 ```

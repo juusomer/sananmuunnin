@@ -3,10 +3,14 @@ import numpy as np
 import sananmuunnin as sm
 
 
-MAX_LEN = 20
-CHARACTERS = ["", " "] + list(sm.VOWELS + sm.CONSONANTS)
+START_TOKEN = "\t"
+END_TOKEN = "\n"
+
+CHARACTERS = [START_TOKEN, END_TOKEN, " "] + list(sm.VOWELS + sm.CONSONANTS)
 N_CHARACTERS = len(CHARACTERS)
-PADDING = 0
+
+START_TOKEN_INDEX = CHARACTERS.index(START_TOKEN)
+END_TOKEN_INDEX = CHARACTERS.index(END_TOKEN)
 
 
 class OneHot:
@@ -19,15 +23,16 @@ class OneHot:
             index: char for char, index in self._char_to_index.items()
         }
 
-    def encode(self, string):
-        n_padding = MAX_LEN - len(string)
-        padding_indices = list(repeat(PADDING, n_padding))
-        char_indices = [self._char_to_index[char] for char in string.lower()]
-        return np.eye(N_CHARACTERS)[
-            np.array(padding_indices + char_indices).reshape(-1)
-        ]
+    def encode(self, string, length=None):
+        length = len(string) if length is None else length
+        output = np.zeros((length, N_CHARACTERS))
+        for i, char in enumerate(string):
+            output[i, self._char_to_index[char]] = 1
+        return output
 
     def decode(self, one_hot_matrix):
         return "".join(
-            self._index_to_char[row.argmax()] for row in one_hot_matrix
+            self._index_to_char[row.argmax()]
+            for row in one_hot_matrix
+            if row.any()
         )
